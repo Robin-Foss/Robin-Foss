@@ -152,7 +152,7 @@ printOut("--- Part 9 -----------------------------------------------------------
 /* Put your code below here!*/
 
 function getRandomInt(min, max) {
-    return Math.floor(Math.random() (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 let r = getRandomInt(1, 360);
