@@ -30,6 +30,8 @@ export const SpriteInfoList = {
   infoText:     { x:    0, y: 630, width:  200, height:  55, count:  2 },
   food:         { x:    0, y: 696, width:   70, height:  65, count: 34 },
   medal:        { x:  985, y: 635, width:   44, height:  44, count:  4 },
+  background: { x: 246, y: 0, width: 576, height: 512, count: 2 },
+  backgroundNight: { x: 246, y: 512, width: 576, height: 512, count: 2 },
 };
 
 export const EGameStatus = { idle: 0, getReady: 1, playing: 2, gameOver: 3 };
@@ -57,6 +59,7 @@ function playSound(aSound) {
     aSound.play();
   } else {
     aSound.pause();
+    aSound.currentTime = 0;
   }
 }
 
@@ -77,7 +80,8 @@ function loadGame() {
 
   //Load sounds
   GameProps.sounds.running = new libSound.TSoundFile("./Media/Flappy Bird Theme Song.mp3");
-
+  GameProps.sounds.GameOver = new libSound.TSoundFile("./Media/gameOverr.mp3");
+  GameProps.sounds.oof = new libSound.TSoundFile("./Media/oof.mp3");
   
 
   requestAnimationFrame(drawGame);
@@ -86,6 +90,13 @@ function loadGame() {
 
 function drawGame() {
   spcvs.clearCanvas();
+
+ if (GameProps.dayTime) {
+    GameProps.background.spriteInfo = SpriteInfoList.background;
+} else {
+    GameProps.background.spriteInfo = SpriteInfoList.backgroundNight;
+}
+
   GameProps.background.draw();
   drawBait();
   drawObstacles();
@@ -115,6 +126,20 @@ function animateGame() {
       if (GameProps.hero.isDead) {
         GameProps.hero.animateSpeed = 0;
         GameProps.hero.update();
+
+// Stop the running sound
+  GameProps.sounds.running.pause();
+        GameProps.sounds.running.currentTime = 0;
+
+
+ // Play the "oof" sound
+        playSound(GameProps.sounds.oof);
+
+
+   // Play the "Game Over" sound     
+playSound(GameProps.sounds.GameOver);
+
+        GameProps.status = EGameStatus.gameOver;
         return;
       }
       GameProps.ground.translate(-GameProps.speed, 0);
@@ -212,6 +237,12 @@ function setSoundOnOff() {
   if (chkMuteSound.checked) {
     GameProps.soundMuted = true;
     console.log("Sound muted");
+    GameProps.sounds.running.pause();
+    GameProps.sounds.running.currentTime = 0;
+    GameProps.sounds.GameOver.pause();
+    GameProps.sounds.GameOver.currentTime = 0;
+    GameProps.sounds.oof.pause();
+    GameProps.sounds.oof.currentTime = 0;
   } else {
     GameProps.soundMuted = false;
     console.log("Sound on");
@@ -221,10 +252,10 @@ function setSoundOnOff() {
 function setDayNight() {
   if (rbDayNight[0].checked) {
     GameProps.dayTime = true;
-    console.log("Day time");
+    console.log("Day mode activated");
   } else {
     GameProps.dayTime = false;
-    console.log("Night time");
+    console.log("Night mode activated");
   }
 } // end of setDayNight
 
